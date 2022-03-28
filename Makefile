@@ -12,16 +12,12 @@ logs:
 
 .PHONY: bash_nginx
 bash_nginx:
-	docker exec -ti ink_legacy_nginx bash
+	docker exec -ti new_project_nginx bash
 
 .PHONY: bash_mysql
 bash_mysql:
-	docker exec -ti ink_legacy_mysql bash
+	docker exec -ti new_project_mysql bash
 
 .PHONY: bash_app
 bash_app:
-	docker exec -ti ink_legacy_app bash
-
-.PHONY: bash_python
-bash_python:
-	docker exec -ti ink_legacy_python bash
+	docker exec -ti new_project_app bash
