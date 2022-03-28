@@ -3,7 +3,7 @@ version: "3.7"
 services:
 
   nginx:
-    container_name: ink_legacy_nginx
+    container_name: new_project_nginx
     image: nginx
     volumes:
       - ./app:/var/www
@@ -13,12 +13,12 @@ services:
     ports:
       - "80:80"
     networks:
-      - ink-app-network
+      - new-project-network
     depends_on:
       - app
 
   app:
-    container_name: ink_legacy_app
+    container_name: new_project_app
     build:
       context: ./resources
     volumes:
@@ -30,15 +30,15 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
-      - ink-app-network
+      - new-project-network
     depends_on:
       - mysql
 
   mysql:
-    container_name: ink_legacy_mysql
+    container_name: new_project_mysql
     image: mysql:8.0.28
     environment:
-      MYSQL_ROOT_PASSWORD: ink_database
+      MYSQL_ROOT_PASSWORD: root
       MYSQL_USER: admin_user
       MYSQL_PASSWORD: root
       MYSQL_DATABASE: ink_dev
@@ -49,28 +49,10 @@ services:
     ports:
     - "3307:3306"
     networks:
-      - ink-app-network
-
-  python:
-    container_name: ink_legacy_python
-    build: 
-      context: ./resources/python
-      args:
-        jfrog_user: ${JFROG_USER}
-        jfrog_pass: ${JFROG_PASS}
-    env_file:
-      - .env
-    volumes:
-      - ./backend_service:/myra-ink-backend
-    command: python3 app/ink.py && tail -f ink.log
-    restart: always
-    networks:
-      - ink-app-network
-    depends_on:
-      - nginx
+      - new-project-network
 
 networks:
-  ink-app-network:
+  new-project-network:
     driver: bridge
 
 volumes:
