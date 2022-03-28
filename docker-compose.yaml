@@ -1,0 +1,78 @@
+version: "3.7"
+
+services:
+
+  nginx:
+    container_name: ink_legacy_nginx
+    image: nginx
+    volumes:
+      - ./app:/var/www
+      - ./resources/config/app.env:/var/www/.env
+      - ./resources/config/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    restart: always
+    ports:
+      - "80:80"
+    networks:
+      - ink-app-network
+    depends_on:
+      - app
+
+  app:
+    container_name: ink_legacy_app
+    build:
+      context: ./resources
+    volumes:
+        - ./app:/var/www   
+        - ./resources/config/startups/config.sh:/opt/config.sh
+        - ./resources/config/app.env:/var/www/.env
+    command: bash -c "bash /opt/config.sh && tail -f /dev/null"
+    restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - ink-app-network
+    depends_on:
+      - mysql
+
+  mysql:
+    container_name: ink_legacy_mysql
+    image: mysql:8.0.28
+    environment:
+      MYSQL_ROOT_PASSWORD: ink_database
+      MYSQL_USER: admin_user
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: ink_dev
+    volumes:
+      - ./db_mysql:/var/lib/mysql
+      - ./resources/config/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
+    restart: always
+    ports:
+    - "3307:3306"
+    networks:
+      - ink-app-network
+
+  python:
+    container_name: ink_legacy_python
+    build: 
+      context: ./resources/python
+      args:
+        jfrog_user: ${JFROG_USER}
+        jfrog_pass: ${JFROG_PASS}
+    env_file:
+      - .env
+    volumes:
+      - ./backend_service:/myra-ink-backend
+    command: python3 app/ink.py && tail -f ink.log
+    restart: always
+    networks:
+      - ink-app-network
+    depends_on:
+      - nginx
+
+networks:
+  ink-app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local

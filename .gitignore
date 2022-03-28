@@ -1,0 +1,4 @@
+.vscode
+app/
+backend_service/
+db_mysql
