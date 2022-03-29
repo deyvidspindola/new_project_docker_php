@@ -1,0 +1,2 @@
+<?php
+echo "BLA BLA BLA BLA BLA BLA BLA";
